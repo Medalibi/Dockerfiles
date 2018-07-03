@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Terminal=true
+Name=Cytoscape 3.5.0
+Icon=/usr/share/icons/Humanity/apps/48/application-default-icon.svg 
+Exec=/usr/local/bin/cytoscape3.5.0

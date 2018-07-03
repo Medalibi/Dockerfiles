@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/usr/bin/docker run -it --rm -v /tmp/.X11-unix:/tmp/.X11-unix:rw -e DISPLAY=unix$DISPLAY -v $HOME/:/home/training/ -v /usr/lib/nvidia-340:/usr/lib/nvidia-340 -v /usr/lib32/nvidia-340:/usr/lib32/nvidia-340 --device /dev/dri --name cytoscape ebitraining/cytoscape:3.5.0
+
