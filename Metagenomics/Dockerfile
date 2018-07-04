@@ -1,6 +1,17 @@
 #########
 #     Dockerfile for Metagenomics Bioinformtics July 2018
 #
+## Run on generic graphics
+#
+# docker run -it --rm -v /tmp/.X11-unix:/tmp/.X11-unix:rw --privileged -e DISPLAY=unix$DISPLAY -v $HOME/:/home/training/ --device /dev/dri --privileged --name metagenomics ebitraining/metagenomics
+#
+# Run on Nvidia graphics
+#
+# docker run -it --rm -v /tmp/.X11-unix:/tmp/.X11-unix:rw --privileged -e DISPLAY=unix$DISPLAY -v $HOME/:/home/training/ -v /usr/lib/nvidia-340:/usr/lib/nvidia-340 -v /usr/lib32/nvidia-340:/usr/lib32/nvidia-340 --device /dev/dri --privileged --name metagenomics ebitraining/metagenomics
+#
+# USAGE:
+#	# Build cytoscape image
+#	docker build -f ./Dockerfile -t metagenomics .
 #
 #########
 FROM ubuntu:16.04
@@ -10,12 +21,22 @@ maintainer="Mohamed Alibi <alibi@ebi.ac.uk>"
 
 # Pre requirements
 ########
+ENV DEBIAN_FRONTEND noninteractive
+ENV LC_ALL en_GB.UTF-8
+ENV LANG en_GB.UTF-8
+ENV LANGUAGE en_GB:en
+
+
 ADD https://download1.rstudio.org/rstudio-xenial-1.1.453-amd64.deb /usr/local/rstudio-xenial-1.1.453-amd64.deb
 
 RUN echo "deb http://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /etc/apt/sources.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 
-RUN apt update && apt -y upgrade
+RUN apt update \
+    && apt install -y --reinstall language-pack-en \
+    && locale-gen en_US.UTF-8 \
+    && apt -y upgrade
+
 RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortran cmake \
     libncurses5-dev libncursesw5-dev libcurl4-openssl-dev libcurl3 zlib1g-dev python-dev \
     python-pip libblas-dev liblapack-dev automake pkg-config unzip nano git gem rubygems \
