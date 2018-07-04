@@ -25,7 +25,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL en_GB.UTF-8
 ENV LANG en_GB.UTF-8
 ENV LANGUAGE en_GB:en
-
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 ADD https://download1.rstudio.org/rstudio-xenial-1.1.453-amd64.deb /usr/local/rstudio-xenial-1.1.453-amd64.deb
 
@@ -34,7 +34,7 @@ RUN echo "deb http://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /et
 
 RUN apt update \
     && apt install -y --reinstall language-pack-en \
-    && locale-gen en_US.UTF-8 \
+    && locale-gen en_GB.UTF-8 \
     && apt -y upgrade
 
 RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortran cmake \
@@ -50,31 +50,33 @@ RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortr
     libglu1-mesa-dev libx11-dev xorg libfreetype6-dev xvfb libgmp3-dev libtiff5-dev lua5.1 \
     liblua5.1-0-dev liblua5.3-dev liblua5.3-0 git-core zlib1g-dev libncurses-dev patch libgsl0-dev \
     && gdebi -n /usr/local/rstudio-xenial-1.1.453-amd64.deb \
-    && echo "en_UK.UTF-8 UTF-8" >> /etc/locale.gen \
-    && locale-gen en_UK.utf8 \
-    && /usr/sbin/update-locale LANG=en_UK.UTF-8 \
+    && echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen en_GB.utf8 \
+    && /usr/sbin/update-locale LANG=en_GB.UTF-8 \
     && apt-get install -fy \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/*.deb \
     && ln -f -s /usr/lib/rstudio/bin/rstudio /usr/bin/rstudio \
     && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
 
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
+#ENV LC_ALL en_US.UTF-8
+#ENV LANG en_US.UTF-8
 
 # Install Perl packages using cpan
 ########
-RUN cpanm install Data::Dumper Getopt::Long Pod::Usage File::Path Cwd FindBin Cairo DeconSeqConfig
+RUN cpanm install Data::Dumper Getopt::Long Pod::Usage File::Path Cwd FindBin Cairo
 
 # Install Python packages using pip
 ########
-RUN pip install -U pysam numpy bcbio-gff cython scipy biopython pandas pip scikit-learn checkm-genome
-RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas pip scikit-learn checkm-genome
+RUN pip install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
+RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
 
 # Install packages available on default repo
 ########
-RUN apt install -y trimmomatic bowtie2 fastqc bwa hmmer parallel picard-tools bedtools mothur \
-    prodigal velvet bedtools samtools libhts-dev
+RUN apt update && apt install -y trimmomatic bowtie2 fastqc bwa hmmer parallel picard-tools bedtools mothur \
+    prodigal velvet bedtools samtools libhts-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
 
 RUN Rscript --vanilla -e "source('https://bioconductor.org/biocLite.R'); biocLite(ask=FALSE); \
     biocLite(c('SIAMCAT', 'phyloseq', 'edgeR', 'phyloseq', 'ebimetagenomics', 'ALDEx2', 'ggplot2', \
@@ -124,25 +126,25 @@ RUN tar xvf /usr/local/mapseq-1.2.2-linux.tar.gz -C /usr/local/ \
 ADD https://repo.anaconda.com/archive/Anaconda2-5.2.0-Linux-x86_64.sh /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh
 RUN chmod 777 /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh \
     && /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh -b -p /usr/local/anaconda2 \
-    && ln -s /usr/local/anaconda2/bin/* /usr/local/bin/ \
+    && ln -s /usr/local/anaconda2/bin/* /usr/local/bin/; exit 0 \
     && chmod 777 -R /usr/local/anaconda2/ \
     && rm /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh
 
 # Install Python packages on the conda envirenemnt
 ########
-RUN pip install -U pysam numpy bcbio-gff cython scipy biopython pandas pip scikit-learn checkm-genome
-RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas pip scikit-learn checkm-genome
+RUN pip install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
+RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
 
-RUN conda create -n concoct_env python=2.7.6 \
-    && source activate concoct_env \
-    && conda install pysam numpy bcbio-gff cython numpy scipy biopython pandas pip scikit-learn
+#RUN /usr/local/anaconda2/bin/conda create -n concoct_env python=2.7.6 \
+#    && source activate concoct_env \
+#    && /usr/local/anaconda2/bin/conda install pysam numpy cython numpy scipy biopython pandas pip scikit-learn
 
 # Install Megan6 Community
 ########
 ADD http://ab.inf.uni-tuebingen.de/data/software/megan6/download/MEGAN_Community_unix_6_12_0.sh /usr/local/MEGAN_Community_unix_6_12_0.sh
 RUN chmod 777 /usr/local/MEGAN_Community_unix_6_12_0.sh \
     && /usr/local/MEGAN_Community_unix_6_12_0.sh -q -dir /usr/local/Megan6 \
-    && ln -s /usr/local/megan6/MEGAN /usr/local/bin/ \
+    && ln -s /usr/local/megan6/MEGAN /usr/local/bin/; exit 0 \
     && chmod 777 -R /usr/local/megan6/ \
     && rm /usr/local/MEGAN_Community_unix_6_12_0.sh
 
@@ -170,8 +172,8 @@ RUN tar xvf /usr/local/SPAdes-3.12.0-Linux.tar.gz -C /usr/local/ \
 COPY ./MaxBin-2.2.5.tar.gz /usr/local/MaxBin-2.2.5.tar.gz
 RUN tar xvf /usr/local/MaxBin-2.2.5.tar.gz -C /usr/local/ \
     && chmod 777 -R /usr/local/MaxBin-2.2.5 \
-    && /usr/local/MaxBin-2.2.5/run_MaxBin.pl \
-    && /usr/local/MaxBin-2.2.5/autobuild_auxiliary \
+    && /usr/local/MaxBin-2.2.5/run_MaxBin.pl; exit 0 \
+    && /usr/local/MaxBin-2.2.5/autobuild_auxiliary; exit 0 \
     && ln -s /usr/local/MaxBin-2.2.5/src/MaxBin /usr/local/bin/ \
     && rm /usr/local/MaxBin-2.2.5.tar.gz
 
@@ -184,7 +186,7 @@ RUN tar xvf /usr/local/newick-utils-1.6-Linux-x86_64-enabled-extra.tar.gz -C /us
     && ./configure \
     && make \
     && make install \
-    && ln -s /usr/local/newick-utils-1.6/src/nw_* /usr/local/bin/ \
+    && ln -s /usr/local/newick-utils-1.6/src/nw_* /usr/local/bin/; exit 0 \
     && rm /usr/local/newick-utils-1.6-Linux-x86_64-enabled-extra.tar.gz
 
 # Install PPlacer
@@ -193,9 +195,9 @@ ADD https://github.com/matsen/pplacer/releases/download/v1.1.alpha19/pplacer-lin
 RUN unzip /usr/local/pplacer-linux-v1.1.alpha19.zip -d /usr/local/ \
     && chmod -R 777 /usr/local/pplacer-Linux-v1.1.alpha19 \
     && /usr/local/pplacer-Linux-v1.1.alpha19/scripts/setup.py \
-    && ln -s /usr/local/pplacer-Linux-v1.1.alpha19/guppy /usr/local/bin/ \
-    && ln -s /usr/local/pplacer-Linux-v1.1.alpha19/pplacer /usr/local/bin/ \
-    && ln -s /usr/local/pplacer-Linux-v1.1.alpha19/rppr /usr/local/bin/ \
+    && ln -s /usr/local/pplacer-Linux-v1.1.alpha19/guppy /usr/local/bin/; exit 0 \
+    && ln -s /usr/local/pplacer-Linux-v1.1.alpha19/pplacer /usr/local/bin/; exit 0 \
+    && ln -s /usr/local/pplacer-Linux-v1.1.alpha19/rppr /usr/local/bin/; exit 0 \
     && rm /usr/local/pplacer-linux-v1.1.alpha19.zip
 
 # Install Blast+
@@ -203,7 +205,7 @@ RUN unzip /usr/local/pplacer-linux-v1.1.alpha19.zip -d /usr/local/ \
 ADD https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.7.1/ncbi-blast-2.7.1+-x64-linux.tar.gz /usr/local/ncbi-blast-2.7.1+-x64-linux.tar.gz
 RUN tar xvf /usr/local/ncbi-blast-2.7.1+-x64-linux.tar.gz -C /usr/local/ \
     && chmod 777 -R /usr/local/ncbi-blast-2.7.1+ \
-    && ln -s /usr/local/ncbi-blast-2.7.1+/bin/* /usr/local/bin/ \
+    && ln -s /usr/local/ncbi-blast-2.7.1+/bin/* /usr/local/bin/; exit 0 \
     && rm /usr/local/ncbi-blast-2.7.1+-x64-linux.tar.gz
 
 # Install CONCOCT
@@ -212,9 +214,9 @@ ADD https://github.com/BinPro/CONCOCT/archive/0.4.0.tar.gz /usr/local/0.4.0.tar.
 RUN tar xvf /usr/local/0.4.0.tar.gz -C /usr/local/ \
     && chmod 777 -R /usr/local/CONCOCT-0.4.0 \
     && cd /usr/local/CONCOCT-0.4.0 \
-    && conda create -n concoct_env python=2.7.6 \
+    && /usr/local/anaconda2/bin/conda create -n concoct_env python=2.7.6 \
     && source activate concoct_env \
-    && conda install cython numpy scipy biopython pandas pip scikit-learn \
+    && /usr/local/anaconda2/bin/conda install cython numpy scipy biopython pandas pip scikit-learn \
     && python setup.py install \
     && rm /usr/local/0.4.0.tar.gz
 
@@ -239,8 +241,8 @@ RUN git clone https://github.com/genome/bam-readcount.git /usr/local/bam-readcou
 RUN git clone https://github.com/bbuchfink/diamond.git /usr/local/diamond \
     && cd /usr/local/diamond \
     && chmod 777 -R /usr/local/diamond/ \
-    && make \
-    && ln -s /usr/local/diamond/diamond /usr/local/bin/
+    && ./build_simple.sh \
+    && ln -s /usr/local/diamond/diamond /usr/local/bin/; exit 0
 
 # Copy datasets
 ########
@@ -250,13 +252,13 @@ RUN chmod 777 -R /dataset/
 # Create user training
 ########
 RUN useradd --create-home --home-dir /home/training training \
-    && mkdir /home/training \
+#    && mkdir /home/training \
     && chown -R training:training /home/training
 
 # Setup the user envirenment
 ########
 ENV HOME /home/training
-RUN && chown -R training:training /home/training \
+RUN chown -R training:training /home/training \
     && usermod -a -G audio,video training \
     && adduser training sudo \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
