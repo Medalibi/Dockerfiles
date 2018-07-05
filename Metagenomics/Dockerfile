@@ -1,5 +1,5 @@
 #########
-#     Dockerfile for Metagenomics Bioinformtics July 2018
+#     Dockerfile for Metagenomics Bioinformatics July 2018
 #
 ## Run on generic graphics
 #
@@ -16,7 +16,7 @@
 #########
 FROM ubuntu:16.04
 LABEL author="Mohamed Alibi" \
-description="Docker image for Metagenomics Bioinformtics July 2018 training course." \
+description="Docker image for the EMBl-EBI Metagenomics Bioinformatics July 2018 training course." \
 maintainer="Mohamed Alibi <alibi@ebi.ac.uk>"
 
 # Pre requirements
@@ -59,8 +59,6 @@ RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortr
     && ln -f -s /usr/lib/rstudio/bin/rstudio /usr/bin/rstudio \
     && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
 
-#ENV LC_ALL en_US.UTF-8
-#ENV LANG en_US.UTF-8
 
 # Install Perl packages using cpan
 ########
@@ -130,14 +128,10 @@ RUN chmod 777 /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh \
     && chmod 777 -R /usr/local/anaconda2/ \
     && rm /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh
 
-# Install Python packages on the conda envirenemnt
+# Re-install Python packages
 ########
 RUN pip install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
 RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
-
-#RUN /usr/local/anaconda2/bin/conda create -n concoct_env python=2.7.6 \
-#    && source activate concoct_env \
-#    && /usr/local/anaconda2/bin/conda install pysam numpy cython numpy scipy biopython pandas pip scikit-learn
 
 # Install Megan6 Community
 ########
@@ -161,7 +155,7 @@ RUN tar xvf /usr/local/metabat-static-binary-linux-x64_v2.12.1.tar.gz -C /usr/lo
 
 # Install SPAdes
 ########
-ADD http://cab.spbu.ru/files/release3.12.0/SPAdes-3.12.0-Linux.tar.gz /usr/local/SPAdes-3.12.0-Linux.tar.gz
+COPY ./SPAdes-3.12.0-Linux.tar.gz /usr/local/SPAdes-3.12.0-Linux.tar.gz
 RUN tar xvf /usr/local/SPAdes-3.12.0-Linux.tar.gz -C /usr/local/ \
     && chmod 777 -R /usr/local/SPAdes-3.12.0-Linux \
     && ln -s /usr/local/SPAdes-3.12.0-Linux/bin/* /usr/local/bin/ \
@@ -252,7 +246,7 @@ RUN chmod 777 -R /dataset/
 # Create user training
 ########
 RUN useradd --create-home --home-dir /home/training training \
-#    && mkdir /home/training \
+    && mkdir /home/training; exit 0 \
     && chown -R training:training /home/training
 
 # Setup the user envirenment
