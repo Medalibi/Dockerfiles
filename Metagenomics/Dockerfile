@@ -72,7 +72,7 @@ RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-l
 # Install packages available on default repo
 ########
 RUN apt update && apt install -y trimmomatic bowtie2 fastqc bwa hmmer parallel picard-tools bedtools mothur \
-    prodigal velvet bedtools samtools libhts-dev \
+    prodigal velvet bedtools samtools libhts-dev openjfx \
     && rm -rf /var/lib/apt/lists/* \
     && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
 
