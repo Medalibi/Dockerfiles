@@ -32,12 +32,12 @@ ADD https://download1.rstudio.org/rstudio-xenial-1.1.453-amd64.deb /usr/local/rs
 RUN echo "deb http://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /etc/apt/sources.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 
-RUN apt update \
-    && apt install -y --reinstall language-pack-en \
-    && locale-gen en_GB.UTF-8 \
-    && apt -y upgrade
+RUN apt-get update \
+    && apt-get -y upgrade \
+    && apt-get install -y --reinstall language-pack-en \
+    && locale-gen en_GB.UTF-8
 
-RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortran cmake \
+RUN apt-get update; apt-get install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortran cmake \
     libncurses5-dev libncursesw5-dev libcurl4-openssl-dev libcurl3 zlib1g-dev python-dev \
     python-pip libblas-dev liblapack-dev automake pkg-config unzip nano git gem rubygems \
     seqtk metis libatlas-dev wget ruby mcl default-jre default-jdk sudo curl autoconf gcc \
@@ -54,10 +54,8 @@ RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortr
     && locale-gen en_GB.utf8 \
     && /usr/sbin/update-locale LANG=en_GB.UTF-8 \
     && apt-get install -fy \
-    && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/*.deb \
-    && ln -f -s /usr/lib/rstudio/bin/rstudio /usr/bin/rstudio \
-    && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
+    && ln -f -s /usr/lib/rstudio/bin/rstudio /usr/bin/rstudio
 
 #ENV LC_ALL en_US.UTF-8
 #ENV LANG en_US.UTF-8
@@ -305,4 +303,3 @@ RUN chown -R training:training /home/training \
 
 WORKDIR $HOME
 USER training
-
