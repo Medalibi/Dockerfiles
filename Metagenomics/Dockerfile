@@ -1,5 +1,5 @@
 #########
-#     Dockerfile for Metagenomics Bioinformatics July 2018
+#     Dockerfile for Metagenomics Bioinformtics July 2018
 #
 ## Run on generic graphics
 #
@@ -16,7 +16,7 @@
 #########
 FROM ubuntu:16.04
 LABEL author="Mohamed Alibi" \
-description="Docker image for the EMBl-EBI Metagenomics Bioinformatics July 2018 training course." \
+description="Docker image for Metagenomics Bioinformtics July 2018 training course." \
 maintainer="Mohamed Alibi <alibi@ebi.ac.uk>"
 
 # Pre requirements
@@ -42,10 +42,10 @@ RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortr
     python-pip libblas-dev liblapack-dev automake pkg-config unzip nano git gem rubygems \
     seqtk metis libatlas-dev wget ruby mcl default-jre default-jdk sudo curl autoconf gcc \
     r-base r-base-core r-recommended gdebi make xml2 libjpeg-dev libpresage-data locales \
-  	zlibc libjpeg62 littler libxslt1.1 libxcomposite1 libtiff5 libqt5widgets5 libqt5webkit5 \
+    zlibc libjpeg62 littler libxslt1.1 libxcomposite1 libtiff5 libqt5widgets5 libqt5webkit5 \
     libcurses-ocaml-dev libgl1-mesa-dri libgl1-mesa-glx mesa-utils fcitx-frontend-qt5 \
-  	fcitx-modules fcitx-module-dbus libedit2 libgstreamer0.10-0 libqt5core5a libqt5dbus5 \
-  	libgstreamer-plugins-base0.10-0 libqt5gui5 libqt5network5 libqt5printsupport5 cpanminus \
+    fcitx-modules fcitx-module-dbus libedit2 libgstreamer0.10-0 libqt5core5a libqt5dbus5 \
+    libgstreamer-plugins-base0.10-0 libqt5gui5 libqt5network5 libqt5printsupport5 cpanminus \
     python3-dev python3-pip libssl-dev python3 mesa-common-dev libxml2-dev libcairo2-dev \
     libglu1-mesa-dev libx11-dev xorg libfreetype6-dev xvfb libgmp3-dev libtiff5-dev lua5.1 \
     liblua5.1-0-dev liblua5.3-dev liblua5.3-0 git-core zlib1g-dev libncurses-dev patch libgsl0-dev \
@@ -59,6 +59,8 @@ RUN apt install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortr
     && ln -f -s /usr/lib/rstudio/bin/rstudio /usr/bin/rstudio \
     && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
 
+#ENV LC_ALL en_US.UTF-8
+#ENV LANG en_US.UTF-8
 
 # Install Perl packages using cpan
 ########
@@ -72,7 +74,7 @@ RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-l
 # Install packages available on default repo
 ########
 RUN apt update && apt install -y trimmomatic bowtie2 fastqc bwa hmmer parallel picard-tools bedtools mothur \
-    prodigal velvet bedtools samtools libhts-dev openjfx \
+    prodigal velvet bedtools samtools libhts-dev openjfx sqlite3 mercurial \
     && rm -rf /var/lib/apt/lists/* \
     && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
 
@@ -128,10 +130,14 @@ RUN chmod 777 /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh \
     && chmod 777 -R /usr/local/anaconda2/ \
     && rm /usr/local/Anaconda2-5.2.0-Linux-x86_64.sh
 
-# Re-install Python packages
+# Install Python packages on the conda envirenemnt
 ########
 RUN pip install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
 RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-learn checkm-genome
+
+#RUN /usr/local/anaconda2/bin/conda create -n concoct_env python=2.7.6 \
+#    && source activate concoct_env \
+#    && /usr/local/anaconda2/bin/conda install pysam numpy cython numpy scipy biopython pandas pip scikit-learn
 
 # Install Megan6 Community
 ########
@@ -139,6 +145,7 @@ ADD http://ab.inf.uni-tuebingen.de/data/software/megan6/download/MEGAN_Community
 RUN chmod 777 /usr/local/MEGAN_Community_unix_6_12_0.sh \
     && /usr/local/MEGAN_Community_unix_6_12_0.sh -q -dir /usr/local/Megan6 \
     && ln -s /usr/local/megan6/MEGAN /usr/local/bin/; exit 0 \
+    && ln -s /usr/local/megan6/MEGAN /usr/local/bin/megan; exit 0 \
     && chmod 777 -R /usr/local/megan6/ \
     && rm /usr/local/MEGAN_Community_unix_6_12_0.sh
 
@@ -155,7 +162,7 @@ RUN tar xvf /usr/local/metabat-static-binary-linux-x64_v2.12.1.tar.gz -C /usr/lo
 
 # Install SPAdes
 ########
-COPY ./SPAdes-3.12.0-Linux.tar.gz /usr/local/SPAdes-3.12.0-Linux.tar.gz
+ADD http://cab.spbu.ru/files/release3.12.0/SPAdes-3.12.0-Linux.tar.gz /usr/local/SPAdes-3.12.0-Linux.tar.gz
 RUN tar xvf /usr/local/SPAdes-3.12.0-Linux.tar.gz -C /usr/local/ \
     && chmod 777 -R /usr/local/SPAdes-3.12.0-Linux \
     && ln -s /usr/local/SPAdes-3.12.0-Linux/bin/* /usr/local/bin/ \
@@ -238,15 +245,54 @@ RUN git clone https://github.com/bbuchfink/diamond.git /usr/local/diamond \
     && ./build_simple.sh \
     && ln -s /usr/local/diamond/diamond /usr/local/bin/; exit 0
 
+# Install Anvi
+RUN /usr/local/anaconda2/bin/conda install -c bioconda -c conda-forge anvio diamond bwa
+
+# Install metaphlan2 and graphlan
+RUN cd /usr/local/ \
+    && hg clone https://hg@bitbucket.org/nsegata/graphlan \
+    && hg clone https://bitbucket.org/biobakery/metaphlan2 \
+    && chmod 777 -R /usr/local/graphlan \
+    && chmod 777 -R /usr/local/metaphlan2 \
+    && ln -s ln -s /usr/local/graphlan/graphlan* /usr/local/bin/; exit 0 \
+    && ln -s /usr/local/metaphlan2/metaphlan2.py /usr/local/bin/; exit 0 \
+    && ln -s /usr/local/metaphlan2/strainphlan.py /usr/local/bin/; exit 0
+
+# Install Megahit
+########
+RUN git clone https://github.com/voutcn/megahit.git /usr/local/megahit \
+    && cd /usr/local/megahit \
+    && chmod 777 -R /usr/local/megahit/ \
+    && make \
+    && ln -s /usr/local/megahit/megahit /usr/local/bin/; exit 0
+
+# Install Kraken
+########
+RUN git clone https://github.com/DerrickWood/kraken.git /usr/local/kraken \
+    && cd /usr/local/kraken \
+    && chmod 777 -R /usr/local/kraken/ \
+    && ./install_kraken.sh ./ \
+    && ln -s /usr/local/kraken/kraken* /usr/local/bin/; exit 0
+
+# Install FigTree
+########
+COPY ./FigTree_v1.4.3.tgz /usr/local/FigTree_v1.4.3.tgz
+RUN tar xvf /usr/local/FigTree_v1.4.3.tgz -C /usr/local/ \
+    && chmod 777 -R /usr/local/FigTree_v1.4.3 \
+    && sed -i 's/lib\/figtree.jar/\/usr\/local\/FigTree_v1.4.3\/lib\/figtree.jar/g' /usr/local/FigTree_v1.4.3/bin/figtree \
+    && ln -s /usr/local/FigTree_v1.4.3/bin/figtree /usr/local/bin/ \
+    && rm /usr/local/FigTree_v1.4.3.tgz
+
 # Copy datasets
 ########
 COPY ./QC_session /dataset/QC_session
+COPY ./ITS1_2_analysis /dataset/ITS1_2_analysis
 RUN chmod 777 -R /dataset/
 
 # Create user training
 ########
 RUN useradd --create-home --home-dir /home/training training \
-    && mkdir /home/training; exit 0 \
+#    && mkdir /home/training \
     && chown -R training:training /home/training
 
 # Setup the user envirenment
@@ -259,3 +305,4 @@ RUN chown -R training:training /home/training \
 
 WORKDIR $HOME
 USER training
+
