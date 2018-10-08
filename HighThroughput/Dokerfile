@@ -31,7 +31,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get install -y --reinstall language-pack-en \
-    && apt-get install -y gnupg gdebi \
+    && apt-get install -y gnupg gdebi expect \
     && locale-gen en_GB.UTF-8
 
 ADD https://download1.rstudio.org/rstudio-xenial-1.1.456-amd64.deb /usr/local/rstudio.deb
@@ -48,7 +48,7 @@ RUN apt-get update; apt-get install -y build-essential ca-certificates libbz2-de
     && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java \
     && echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_GB.utf8 \
-    && /usr/sbin/update-locale LANG=en_GB.UTF-8 \
+    && /usr/sbin/update-locale LANG=en_GB.UTF-8
 
 # Install R CRAN
 ########
@@ -111,7 +111,7 @@ RUN unzip /usr/local/IGV.zip -d /usr/local/ \
 ########
 ADD https://ics.hutton.ac.uk/resources/tablet/installers/tablet_linux_x64_1_17_08_17.sh /usr/local/tablet.sh
 RUN chmod 777 /usr/local/tablet.sh \
-    && expect -c "spawn /usr/local/tablet.sh -c; expect -re \"OK \[o, Enter\], Cancel \[c\]\"; send \"o\r\r\"; expect -re \"\[Enter\]\"; send \"\r\"; expect -re \"Yes \[1\], No \[2\]\"; send \"1\r\"; sleep 2; expect -re \"\[\/opt\/Tablet\]\"; send \"\/usr\/local\/Tablet\/\r\"; expect -re \"Yes \[y, Enter\], No \[n\]\"; send \"y\r\"; expect -re \"\[\/usr\/local\/bin\]\"; send \"\r\"; expect -re \"Yes \[y, Enter\], No \[n\]\"; send \"n\r\"; interact" \
+    && /usr/bin/expect -c "spawn /usr/local/tablet.sh -c; expect -re \"OK \[o, Enter\], Cancel \[c\]\"; send \"o\r\r\"; expect -re \"\[Enter\]\"; send \"\r\"; expect -re \"Yes \[1\], No \[2\]\"; send \"1\r\"; sleep 2; expect -re \"\[\/opt\/Tablet\]\"; send \"\/usr\/local\/Tablet\/\r\"; expect -re \"Yes \[y, Enter\], No \[n\]\"; send \"y\r\"; expect -re \"\[\/usr\/local\/bin\]\"; send \"\r\"; expect -re \"Yes \[y, Enter\], No \[n\]\"; send \"n\r\"; interact" \
     && chmod 777 -R /usr/local/Tablet \
     && rm /usr/local/tablet.sh
 
