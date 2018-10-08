@@ -31,7 +31,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get install -y --reinstall language-pack-en \
-    && apt-get install -y gnupg \
+    && apt-get install -y gnupg gdebi \
     && locale-gen en_GB.UTF-8
 
 ADD https://download1.rstudio.org/rstudio-xenial-1.1.456-amd64.deb /usr/local/rstudio.deb
@@ -44,7 +44,7 @@ RUN apt-get update; apt-get install -y build-essential ca-certificates libbz2-de
     libxcomposite1 libtiff5 libqt5widgets5 libqt5webkit5 libssl-dev python3 mesa-common-dev libxml2-dev \
     libcurses-ocaml-dev libgl1-mesa-dri libgl1-mesa-glx mesa-utils fcitx-frontend-qt5 libqt5gui5 gdebi \
     fcitx-modules fcitx-module-dbus libedit2 libqt5core5a libqt5dbus5 libqt5network5 libqt5printsupport5 \
-    default-jre default-jre-headless gradle expect libcurl4 libcurl4-openssl-dev python python3 curl \
+    default-jre default-jre-headless expect libcurl4 libcurl4-openssl-dev python python3 curl \
     && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java \
     && echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_GB.utf8 \
