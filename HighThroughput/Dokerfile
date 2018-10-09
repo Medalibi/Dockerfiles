@@ -165,7 +165,7 @@ RUN echo -e '#!/bin/bash \n\njava -jar /usr/local/bin/picard.jar $@' > /usr/loca
 ADD https://github.com/broadinstitute/gatk/releases/download/4.0.10.0/gatk-4.0.10.0.zip /usr/local/gatk.zip
 RUN unzip /usr/local/gatk.zip -d /usr/local/ \
     && chmod 777 -R /usr/local/gatk-4.0.10.0 \
-    && ln -s /usr/local/gatk-4.0.10.0/gatk /usr/loca/bin/ \
+    && ln -s /usr/local/gatk-4.0.10.0/gatk /usr/local/bin/ \
     && rm /usr/local/gatk.zip
 
 # Install vcftools
