@@ -199,32 +199,16 @@ RUN unzip /usr/local/qualimap.zip -d /usr/local/ \
 
 # Create user training
 ########
-RUN useradd --create-home --home-dir /home/training training \
-#    && mkdir /home/training \
-    && chown -R training:training /home/training
+ENV HOME /home/training
+RUN useradd --create-home --home-dir $HOME training
 
 # Setup the user envirenment
 ########
-ENV HOME /home/training
-RUN chown -R training:training /home/training \
-    && usermod -a -G audio,video training \
-    && adduser training sudo \
-    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-
-WORKDIR $HOME
-USER training# Create user training
-########
-RUN useradd --create-home --home-dir /home/training training \
-#    && mkdir /home/training \
-    && chown -R training:training /home/training
-
-# Setup the user envirenment
-########
-ENV HOME /home/training
-RUN chown -R training:training /home/training \
-    && usermod -a -G audio,video training \
-    && adduser training sudo \
+RUN chown -R training:training $HOME \
+    && usermod -a -G sudo,audio,video training \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 WORKDIR $HOME
 USER training
+
+ENTRYPOINT [ "bash" ]
