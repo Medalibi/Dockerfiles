@@ -114,5 +114,3 @@ RUN chown -R training:training $HOME \
 
 WORKDIR $HOME
 USER training
-
-ENTRYPOINT [ "bash" ]
