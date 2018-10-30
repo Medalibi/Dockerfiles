@@ -5,14 +5,14 @@
 ### To run the container for the first time with generic graphics:
 # xhost +
 # docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix:rw --privileged -e DISPLAY=unix$DISPLAY \
-# -v $HOME/:/home/training/ --device /dev/dri --privileged --name metagenomics:assembly \
+# -v $HOME/:/home/training/ --device /dev/dri --privileged --name metagenomics \
 # ebitraining/metagenomics:assembly
 #
 ### To run with Nvidia graphics, add the following option:
 # "-v /usr/lib/nvidia-340:/usr/lib/nvidia-340 -v /usr/lib32/nvidia-340:/usr/lib32/nvidia-340"
 #
 ### To resume using an container:
-# docker exec -it metagenomics:assembly /bin/bash
+# docker exec -it metagenomics /bin/bash
 #
 ### To build the container:
 # docker build -f ./Dockerfile -t metagenomics .
@@ -40,11 +40,12 @@ RUN apt-get update \
     && locale-gen en_GB.UTF-8
 
 RUN apt-get update; apt-get install -y build-essential ca-certificates libbz2-dev liblzma-dev gfortran \
-    libncurses5-dev libncursesw5-dev zlib1g-dev automake pkg-config unzip openjdk-8-jre-headless curl python-pip \
+    libncurses5-dev libncursesw5-dev zlib1g-dev automake pkg-config unzip openjdk-8-jre-headless curl \
     git wget sudo autoconf make xml2 locales libjpeg-dev zlibc libjpeg62 libxslt1.1 nano openjdk-8-jre \
     libxcomposite1 libtiff5 libssl-dev python3 python3-dev mesa-common-dev tar python-dev sudo mercurial \
     libcurses-ocaml-dev libgl1-mesa-dri libgl1-mesa-glx mesa-utils fcitx-frontend-qt5 libqt5gui5 openjfx \
     fcitx-modules fcitx-module-dbus libedit2 libxml2-dev default-jre default-jre-headless python sqlite3 \
+    python3-pip python-pip libgsl-dev \
     && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java \
     && echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_GB.utf8 \
@@ -147,7 +148,7 @@ RUN unzip /usr/local/pplacer-linux-v1.1.alpha19.zip -d /usr/local/ \
 
 ## Install Bedtools
 ADD https://github.com/arq5x/bedtools2/releases/download/v2.27.1/bedtools-2.27.1.tar.gz /usr/local/bedtools-2.27.1.tar.gz
-tar xvf /usr/local/bedtools-2.27.1.tar.gz -C /usr/local/ \
+RUN tar xvf /usr/local/bedtools-2.27.1.tar.gz -C /usr/local/ \
     && chmod 777 -R /usr/local/bedtools2 \
     && cd /usr/local/bedtools2 \
     && make \
@@ -171,10 +172,18 @@ RUN git clone https://github.com/voutcn/megahit.git /usr/local/megahit \
     && make \
     && ln -s /usr/local/megahit/megahit /usr/local/bin/;
 
+## Install Anvio
+########
+RUN git clone https://github.com/merenlab/anvio.git /usr/local/anvio \
+    && cd /usr/local/anvio \
+    && chmod 777 -R /usr/local/anvio/ \
+    && pip3 install -r requirements.txt \
+    && pip3 install anvio
+
 ## Create user training
 ########
-RUN useradd --create-home --home-dir $HOME training \
-    && chown -R training:training /home/training
+RUN mkdir /home/training \
+    &&  useradd --create-home --home-dir /home/training training
 
 # Setup the user envirenment
 ########
@@ -185,5 +194,3 @@ RUN chown -R training:training $HOME \
 
 WORKDIR $HOME
 USER training
-
-ENTRYPOINT [ "bash" ]
