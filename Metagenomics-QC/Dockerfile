@@ -96,7 +96,8 @@ RUN unzip /usr/local/fastqc.zip -d /usr/local/ \
 ADD https://github.com/marbl/Krona/releases/download/v2.7/KronaTools-2.7.tar /usr/local/KronaTools.tar
 RUN tar xvf /usr/local/KronaTools.tar -C /usr/local/ \
     && chmod 777 -R /usr/local/KronaTools-2.7 \
-    && sudo /usr/local/KronaTools-2.7/install.pl \
+    && cd /usr/local/KronaTools-2.7 \
+    && ./install.pl \
     && rm /usr/local/KronaTools.tar
 
 ## Create user training
