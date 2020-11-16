@@ -72,11 +72,7 @@ RUN pip3 install -U pysam numpy bcbio-gff cython scipy biopython pandas scikit-l
 # Install packages available on default repo
 ########
 RUN apt update && apt install -y trimmomatic bowtie2 fastqc bwa hmmer parallel picard-tools bedtools mothur \
-<<<<<<< HEAD
-    prodigal velvet bedtools samtools libhts-dev openjfx sqlite3 \
-=======
     prodigal velvet bedtools samtools libhts-dev openjfx sqlite3 mercurial \
->>>>>>> origin/master
     && rm -rf /var/lib/apt/lists/* \
     && apt -y autoremove && apt autoclean && rm -rf /var/lib/apt/lists/*
 
@@ -250,8 +246,6 @@ RUN git clone https://github.com/bbuchfink/diamond.git /usr/local/diamond \
 # Install Anvi
 RUN /usr/local/anaconda2/bin/conda install -c bioconda -c conda-forge anvio diamond bwa
 
-<<<<<<< HEAD
-=======
 # Install metaphlan2 and graphlan
 RUN cd /usr/local/ \
     && hg clone https://hg@bitbucket.org/nsegata/graphlan \
@@ -287,7 +281,6 @@ RUN tar xvf /usr/local/FigTree_v1.4.3.tgz -C /usr/local/ \
     && ln -s /usr/local/FigTree_v1.4.3/bin/figtree /usr/local/bin/ \
     && rm /usr/local/FigTree_v1.4.3.tgz
 
->>>>>>> origin/master
 # Copy datasets
 ########
 COPY ./QC_session /dataset/QC_session
