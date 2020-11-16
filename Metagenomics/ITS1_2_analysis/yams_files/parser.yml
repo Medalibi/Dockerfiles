@@ -1,0 +1,5 @@
+help_flag: false
+coverage: 50
+identity_threshold: 90
+paired: /path/to/example_files/test.sam
+outfile: prova.txt

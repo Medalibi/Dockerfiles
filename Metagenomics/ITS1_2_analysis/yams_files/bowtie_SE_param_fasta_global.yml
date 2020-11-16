@@ -1,0 +1,9 @@
+fastq_flag: false
+seed_n: 1
+index_loc: /path/to/ITSoneDB_all_euk_r131
+match_n: 100
+input_FASTA: [/path/to/example_files/fungi_SE.fa]
+output_sam: test.sam
+processors: 10
+local_alignment: false
+unaligned_items: true
